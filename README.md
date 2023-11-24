@@ -15,11 +15,11 @@ i.	Los reportes de información sobre la gestión de los residuos sólidos que r
 ii.	Los Estudios de caracterización de residuos sólidos municipales, que se estandarizó desde el año 2019 en adelante, considerando los criterios establecidos en la Guía para la caracterización de residuos sólidos municipales, aprobada mediante Resolución Ministerial N° 457-2018-MINAM.
 
 
-LINK de la app web desplegado en Streamlit Cloud:
+**LINK de la app web desplegado en Streamlit Cloud:**
 https://residuos.streamlit.app
 
 
-*Integrantes:*
+**Integrantes:**
 
 
 1. LIZZETH QUISPE MAMANI
