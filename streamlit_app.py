@@ -2,9 +2,6 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-import requests
-import io
-from PIL import Image
 # https://discuss.streamlit.io/t/streamlit-option-menu-is-a-simple-streamlit-component-that-allows-users-to-select-a-single-item-from-a-list-of-options-in-a-menu
 # https://icons.getbootstrap.com/
 # https://gist.github.com/asehmi/55781a5e90942fa26be87b3ba92b643c
