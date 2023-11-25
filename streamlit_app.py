@@ -5,8 +5,9 @@ import plotly.graph_objects as go
 # https://discuss.streamlit.io/t/streamlit-option-menu-is-a-simple-streamlit-component-that-allows-users-to-select-a-single-item-from-a-list-of-options-in-a-menu
 # https://icons.getbootstrap.com/
 # https://gist.github.com/asehmi/55781a5e90942fa26be87b3ba92b643c
+# https://github.com/victoryhb/streamlit-option-menu
 from streamlit_option_menu import option_menu
-st.set_page_config(page_title='Dashboard residuos domiciliarios', layout='wide')
+st.set_page_config(page_title='Dashboard residuos domiciliarios',page_icon="🌎",initial_sidebar_state="expanded", layout='wide')
 st.markdown("**Composición anual de residuos domiciliarios (2019-2022)**")
 # Cargar el archivo CSV en un DataFrame
 file_path = "D. Composición Anual de residuos domiciliarios_Distrital_2019_2022.csv"
@@ -233,7 +234,7 @@ def do_credentials():
 def do_logs():
     st.markdown('### Blah, blah, blah, ....')
 def do_acerca():
-    st.image('basurero.jpg', caption="Basura en la playa", use_column_width=True)
+    st.image('agradecimiento.png', caption="Basura en la playa", use_column_width=True)
     st.link_button("Ir a código del proyecto", "https://github.com/summermp/streamlit", type='primary')
     st.markdown("""
 La gestión de residuos sólidos domiciliarios es un desafío importante en el Perú, ya que su inadecuada disposición final genera problemas ambientales y de salud pública. La composición de los residuos sólidos domiciliarios es un factor clave para el diseño e implementación de estrategias efectivas de gestión de residuos.
