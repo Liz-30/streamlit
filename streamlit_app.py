@@ -234,7 +234,7 @@ def do_credentials():
 def do_logs():
     st.markdown('### Blah, blah, blah, ....')
 def do_acerca():
-    st.image('agradecimiento.png', caption="Basura en la playa", use_column_width=True)
+    st.image('basurero.jpg', caption="Basura en la playa", use_column_width=True)
     st.link_button("Ir a código del proyecto", "https://github.com/summermp/streamlit", type='primary')
     st.markdown("""
 La gestión de residuos sólidos domiciliarios es un desafío importante en el Perú, ya que su inadecuada disposición final genera problemas ambientales y de salud pública. La composición de los residuos sólidos domiciliarios es un factor clave para el diseño e implementación de estrategias efectivas de gestión de residuos.
