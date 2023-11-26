@@ -1,13 +1,12 @@
+# Importar bibliotecas necesarias
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-# https://discuss.streamlit.io/t/streamlit-option-menu-is-a-simple-streamlit-component-that-allows-users-to-select-a-single-item-from-a-list-of-options-in-a-menu
-# https://icons.getbootstrap.com/
-# https://gist.github.com/asehmi/55781a5e90942fa26be87b3ba92b643c
-# https://github.com/victoryhb/streamlit-option-menu
 from streamlit_option_menu import option_menu
-st.set_page_config(page_title='Dashboard residuos domiciliarios',page_icon="🌎",initial_sidebar_state="expanded", layout='wide')
+# Configuración de la página de Streamlit
+st.set_page_config(page_title='Dashboard residuos domiciliarios', page_icon="🌎", initial_sidebar_state="expanded", layout='wide')
+# Estilos en formato HTML para el texto
 text_style = """
     <style>
         .title_text {
@@ -18,37 +17,29 @@ text_style = """
             font-size: 24px; font-family: "Times New Roman", Georgia, serif;
             text-align: justify;
         }
-
     </style>
 """
 st.markdown(text_style, unsafe_allow_html=True)
+# Título principal del Dashboard
 st.markdown("<h3 class='title_text'>Composición anual de residuos domiciliarios (2019-2022)<h3>" , unsafe_allow_html=True)
 # Cargar el archivo CSV en un DataFrame
 file_path = "D. Composición Anual de residuos domiciliarios_Distrital_2019_2022.csv"
 df = pd.read_csv(file_path, encoding="ISO-8859-1", delimiter=";", index_col=0, usecols=lambda x: 'Unnamed' not in x)
-# Exclude the last two rows
-df = df.iloc[:-2]
+df = df.iloc[:-2]  # Excluir las dos últimas filas
 df["PERIODO"] = df["PERIODO"].astype(int)
-# Filter the DataFrame to include only rows where "PERIODO" is not null
-df = df[df["PERIODO"].notna()]
-def do_upload_tasks():
-    st.markdown('### Upload task file')
+# Función para generar el primer gráfico
 def do_chart1():
     global df
-    # Contar los valores de la columna "QRESIDUOS_DOM" por "PERIODO"
     count_by_periodo = df.groupby("PERIODO")["QRESIDUOS_DOM"].count().reset_index()
-    # Mostrar los resultados en un gráfico de pastel (donut chart) utilizando plotly.express con colores diferentes y características avanzadas
     fig = go.Figure()
-
+    # Crear un gráfico de pastel (donut chart) utilizando plotly.express
     fig.add_trace(go.Pie(
         labels=count_by_periodo["PERIODO"],
         values=count_by_periodo["QRESIDUOS_DOM"],
-        texttemplate="%{label}<br>"
-        "%{percent:.2%}",
+        texttemplate="%{label}<br>%{percent:.2%}",
         hole=0.6,
         showlegend=True,
         hovertemplate="<b>Año</b>: %{label}<br>"
-                      # See docs for information on d3 formatting
                       "<b>Total</b>: %{value:.0f}<br>"
                       "<b>Porcentaje</b>: %{percent:.2%}<br>"
                       "<extra></extra>",
@@ -56,8 +47,6 @@ def do_chart1():
         pull=[0.1] * len(count_by_periodo),
         marker=dict(colors=px.colors.qualitative.Set3),
     ))
-
-    # Add a title in the center of the donut chart
     fig.add_annotation(
         text="RESIDUOS DOMICILIARIOS",
         x=0.5,
@@ -65,51 +54,42 @@ def do_chart1():
         showarrow=False,
         font=dict(size=20)
     )
-
-    # Customize legend and layout
     fig.update_layout(
         title="Consumo de residuos domiciliarios por año Ton/Año | 2019 - 2022",
         legend=dict(
-            orientation="h",  # horizontal legend
+            orientation="h",
             yanchor="bottom",
             y=1.02,
             xanchor="right",
             x=1
         ),
-        font=dict(family="Arial", size=12, color="black"),  # Adjust font
+        font=dict(family="Arial", size=12, color="black"),
     )
     st.plotly_chart(fig, use_container=True)
     st.markdown("*Gráfica 1: El gráfico representa la proporción expresada en porcentajes de la cantidad de residuos sólidos domiciliarios por año*")
-    st.info('En la gráfica se logra observar la comparación de la cantidad de residuos sólidos domiciliarios que fueron registrados durante el periodo 2019 al 2022 y la proporción que representan respecto al 100% del total de los datos registrados, de los cuales se puede destacar que el año 2019 y 2020 tienen un porcentaje igual de distribución y lo mismo se logra observar para los años 2021 y 2022, pero es importante destacar que los 2 últimos años del periodo fueron los que mayor porcentaje de residuos sólidos domiciliarios registraron. ', icon="🧐")
+    st.info('En la gráfica se logra observar la comparación de la cantidad de residuos sólidos domiciliarios que fueron registrados durante el periodo 2019 al 2022 y la proporción que representan respecto al 100% del total de los datos registrados, de los cuales se puede destacar que el año 2019 y 2020 tienen un porcentaje igual de distribución y lo mismo se logra observar para los años 2021 y 2022, pero es importante destacar que los 2 últimos años del periodo fueron los que mayor porcentaje de residuos sólidos domiciliarios registraron. ', icon="😀")
+# Función para generar el segundo gráfico
 def do_chart2():
-    # st.markdown('### Ticking tasks')
     sum_residuos_urbanos = df.groupby("DEPARTAMENTO")["QRESIDUOS_DOM"].sum().reset_index()
-    # Renombrar la columna para reflejar que son "residuos domiciliarios urbanos"
     sum_residuos_urbanos.rename(columns={"QRESIDUOS_DOM": "Residuos Domiciliarios Urbanos"}, inplace=True)
-    # st.dataframe(sum_residuos_urbanos)
-    # Crear el Bubble Chart con la suma de los residuos urbanos
     fig = px.scatter(sum_residuos_urbanos, x="DEPARTAMENTO", y="Residuos Domiciliarios Urbanos",
                     size="Residuos Domiciliarios Urbanos", color="DEPARTAMENTO",
                     hover_name="DEPARTAMENTO", title="Residuos sólidos domiciliarios urbanos Ton/Año por Departamento",
-                    labels={"Residuos Domiciliarios Urbanos": "Residuos Domiciliarios Urbanos", "DEPARTAMENTO": "Departamento"},
+                    labels={"Residuos Domiciliarios asdflj": "Residuos Domiciliarios Urbanos", "DEPARTAMENTO": "Departamento"},
                     size_max=60,
-                    # mode='markers',
-                    color_discrete_sequence=px.colors.qualitative.Set3)  # Utilizar la paleta Set3
-    # Establecer el título del eje y
-    fig.update_yaxes(title_text="Residuos Domiciliarios Urbanos")
-    # Rotar las etiquetas del eje X para mostrar todos los departamentos
+                    color_discrete_sequence=px.colors.qualitative.Set3)
+    fig.update_yaxes(title_text="Residuos Domiciliarios Urbanos 2019 - 2022")
     fig.update_layout(xaxis_tickangle=-45)
-    # Estilo adicional
     fig.update_layout(
         xaxis=dict(title='Departamento'),
-        yaxis=dict(title='Residuos Domiciliarios Urbanos'),
-        template="plotly_dark",  # Utilizar un fondo oscuro
-        font=dict(family="Arial", size=12, color="white"),  # Ajustar la fuente
+        yaxis=dict(title='Residuos Domiciliarios Urbanos 2019 - 2022'),
+        template="plotly_dark",
+        font=dict(family="Arial", size=12, color="white"),
     )
-    # Mostrar el gráfico
     st.plotly_chart(fig)
     st.markdown("*Gráfica 2: El gráfico representa los residuos domiciliarios urbanos por departamento expresada en millones de toneladas*")
-    st.warning('En el gráfico presentado podemos observar que  en  la capital del Perú Lima, es una de las ciudades más urbanizadas , de igual forma la más poblada del país y, por lo tanto, genera una gran cantidad de residuos sólidos domiciliarios. Según un informe del Ministerio del Ambiente, los habitantes de la ciudad de Lima generan un promedio de 10 M (millones)  de residuos sólidos del período tomado del 2019-2022 . Además, la cantidad de residuos sólidos generados por persona viene incrementándose debido a los patrones de consumo.', icon="⚠️")
+    st.warning('En el gráfico presentado podemos observar que  en  la capital del Perú Lima, es una de las ciudades más urbanizadas , de igual forma la más poblada del país y, por lo tanto, genera una gran cantidad de residuos sólidos domiciliarios.  ', icon="😀")
+# Función para generar el tercer gráfico
 def do_chart3():
     saved_df = st.session_state['df_guardado']  
     selected_year = st.session_state['anio_seleccionado']  
@@ -135,13 +115,13 @@ def do_chart3():
         yaxis_title="Ton/Año",
         template="plotly_dark",  # Utilizar un fondo oscuro
         font=dict(family="Arial", size=12, color="black"),  # Ajustar la fuente
-        showlegend=False  # Ocultar la leyenda, ya que el color se usa para departamentos
+        showlegend=True  # Ocultar la leyenda, ya que el color se usa para departamentos
     )
     st.plotly_chart(fig)
     st.markdown("*Gráfica 3: La gráfica muestra la diferencia de consumos de residuos sólidos domiciliarios por departamento con su respectiva región.*")
     st.info('Tener en cuenta que el territorio  peruano está dividido en 3 regiones naturales: costa, sierra y selva. Esta división se basa en las características topográficas y climáticas de cada región,es por ello, que en la gráfica se puede apreciar que el mismo departamento se encuentra en diferentes regiones. Por ejemplo, el departamento de Piura que se encuentra ubicado en la zona norte del país, está distribuido geográficamente en la costa y sierra, como consecuencia se pueden apreciar playas, ríos y montañas dentro de un mismo territorio.', icon="🔎")
+# Función para generar el cuarto gráfico    
 def do_chart4():
-    # st.markdown('### chart4')
     # Access the DataFrame from session state
     saved_df = st.session_state['df_guardado']
     # Definir las categorías de residuos
@@ -165,7 +145,7 @@ def do_chart4():
     # Realizar la sumatoria por categoría y departamento
     sum_by_department = saved_df.groupby("DEPARTAMENTO")["ORGANICOS", "INORGANICOS", "NO_APROVECHABLES", "PELIGROSOS"].sum()
     # Mostrar los resultados en una tabla
-    st.write("Suma de Residuos por Categoría y Departamento:")
+    st.write("**Suma de Residuos por Categoría y Departamento:**")
     st.dataframe(sum_by_department)
     # Reorganizar los datos para el gráfico de barras
     sum_by_department_melted = sum_by_department.reset_index().melt(id_vars=["DEPARTAMENTO"],
@@ -215,8 +195,8 @@ def do_chart4():
 
 **Peligrosos:** Son aquellos residuos que, debido a sus propiedades corrosivas, explosivas, tóxicas, inflamables o radiactivas, pueden causar daños o efectos indeseados a la salud o al ambiente.
 ''', icon="🔎")
+# Función para generar el quinto gráfico
 def do_chart5():
-    # st.markdown('### chart5')
     # Multiplicar las columnas para obtener "RESIDUOS URBANA" y "RESIDUOS RURAL"
     saved_df = st.session_state['df_guardado']
     saved_df["RESIDUOS URBANA"] = saved_df["POB_URBANA"] * saved_df["GPC_DOM"]
@@ -250,15 +230,10 @@ def do_chart5():
     """
     En la gráfica se logra observar que la mayoría de los residuos sólidos que provienen de las zonas urbanas es en mayor cantidad con respecto a los residuos de las zonas rurales, factores como la densidad de población y estilo de vida son los responsables de dichos resultados. Por ejemplo, en las zonas urbanas las personas tienden a consumir más productos desechables envasados, generando así que la cantidad de residuos sólidos aumente, a diferencia de la población en las zonas rurales quienes tiende a consumir más productos frescos y a granel, permitiendo que la cantidad de residuos sólidos se reduzca.
     """, icon='🔎')
-
-def do_credentials():
-    st.markdown('### Security rules')
-def do_logs():
-    st.markdown('### Blah, blah, blah, ....')
+# Función para mostrar información sobre el proyecto
 def do_acerca():
     st.image('basurero.jpg', caption="Basura en la playa", use_column_width=True)
     st.link_button("Ir a código del proyecto", "https://github.com/summermp/streamlit", type='primary')
-    
     st.markdown("""
 <p class='desc_text'> La base de datos de composición de residuos sólidos domiciliarios corresponde a la información sobre la distribución de los residuos sólidos del ámbito domiciliario generados por tipo (medido en tonelada). Dicha información, fue obtenida desde los años 2019 hasta el 2022, con respecto a todos los departamentos de nuestro país.</br></br>
 La información que se toma de insumo para la estimación de esta estadística es obtenida a partir de dos fuentes de información: </br></br>
@@ -271,102 +246,129 @@ Los Estudios de caracterización de residuos sólidos municipales, que se estand
 <h4 class='title_text'>¿Cómo influyen los residuos sólidos en los seres vivos?</h4>
 <p class='desc_text'>De acuerdo a su clasificación y aprovechamiento estos residuos domiciliarios pueden influir tanto positiva como negativamente, por ejemplo, el uso irresponsable y excesivo de plástico, pilas y/o baterías podría ser muy perjudicial para los seres vivos y al ambiente, ya que estos son residuos que podrían <b>tomarse entre 100 a 1000 años en descomponerse</b>, generando así un rastro tóxico a largo plazo en nuestro ecosistema. Por otra parte, el aprovechamiento responsable y creativo de los residuos domiciliarios, tales como la materia orgánica, el papel y el cartón permiten fomentar el reciclaje y crear nuevos productos que sean en beneficio para los seres vivos y el ambiente, por ejemplo, la descomposición de la materia orgánica podría ser fuente de compostaje para las plantas.</p>
 """,  unsafe_allow_html=True)
-def do_contact():
+# Función para mostrar información de nosotros
+def do_nosotros():
     st.markdown("<h4 class='title_text'>¿Quiénes somos?</h4>", unsafe_allow_html=True)
     st.markdown("<p class='desc_text'>Somos estudiantes del cuarto semestre de la carrera de ingeniería ambiental de la Universidad Peruana Cayetano Heredia (UPCH). Nos apasiona el procesamiento y visualización de datos para mejorar y comprender la problemática ambiental y brindar información sobre los residuos sólidos generados en el Perú.</p>", unsafe_allow_html=True)
     # Crear dos columnas
     col1, col2 = st.columns(2)
     # Puedes agregar imágenes a cada columna también
-    imagen1 = "greisy.png"  # Reemplaza con la URL de tu primera imagen
-    imagen2 = "lizzeth.jpg"  # Reemplaza con la URL de tu segunda imagen
-    col1.image(imagen1, use_column_width=True)
+    col1.image("greisy.jpeg", use_column_width=True)
     col1.markdown("<p style='text-align: center;'><strong>Greisy Jhoana Delgado Gaona</strong></p>", unsafe_allow_html=True)
-    col2.image(imagen2, use_column_width=True)
+    col2.image("lizzeth.jpeg", use_column_width=True)
     col2.markdown("<p style='text-align: center;'><strong>Lizzeth Rossmery Quispe Mamani</strong></p>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     # Puedes agregar imágenes a cada columna también
-    imagen1 = "amparo.jpg"  # Reemplaza con la URL de tu primera imagen
-    imagen2 = "anjhy.jpg"  # Reemplaza con la URL de tu segunda imagen
-    col1.image(imagen1, use_column_width=True)
+    col1.image("amparo.jpeg", use_column_width=True)
     col1.markdown("<p style='text-align: center;'><strong>Amparo Marleny Vidaurre Juarez</strong></p>", unsafe_allow_html=True)
-    col2.image(imagen2, use_column_width=True)
+    col2.image("anjhy.jpeg", use_column_width=True)
     col2.markdown("<p style='text-align: center;'><strong>Anjhy Lucero Zamora Sulca</strong></p>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
-    imagen1 = "liz.jpg"  # Reemplaza con la URL de tu primera imagen
-    col1.image(imagen1, use_column_width=True)
+    col1.image("liz.jpeg", use_column_width=True)
     col1.markdown("<p style='text-align: center;'><strong>Liz Villarreal Zapata</strong></p>", unsafe_allow_html=True)
     # st.image('agradecimiento.png', caption="Agradecimiento al equipo", use_column_width=True)
+# Definición de estilos para la interfaz gráfica
+# Estilo del contenedor principal
 styles = {
-    "container": {"margin": "0px !important", "padding": "0!important", "align-items": "stretch", "background-color": "#fafafa"},
-    "icon": {"color": "black", "font-size": "20px"}, 
-    "nav-link": {"font-size": "20px", "text-align": "left", "margin":"0px", "--hover-color": "#eee"},
-    "nav-link-selected": {"background-color": "#ff4b4b", "font-size": "20px", "font-weight": "normal", "color": "black", },
+    "container": {
+        "margin": "0px !important",  # Márgenes del contenedor
+        "padding": "0 !important",  # Relleno del contenedor
+        "align-items": "stretch",  # Alineación de los elementos dentro del contenedor
+        "background-color": "#fafafa"  # Color de fondo del contenedor
+    },
+    # Estilo para los iconos
+    "icon": {
+        "color": "black",  # Color del icono
+        "font-size": "20px"  # Tamaño de fuente del icono
+    }, 
+    # Estilo para los enlaces de navegación
+    "nav-link": {
+        "font-size": "20px",  # Tamaño de fuente del enlace
+        "text-align": "left",  # Alineación del texto a la izquierda
+        "margin": "0px",  # Márgenes del enlace
+        "--hover-color": "#fafa"  # Color al pasar el mouse sobre el enlace
+    },
+    # Estilo para el enlace de navegación seleccionado
+    "nav-link-selected": {
+        "background-color": "#ff4b4b",  # Color de fondo del enlace seleccionado
+        "font-size": "20px",  # Tamaño de fuente del enlace seleccionado
+        "font-weight": "normal",  # Grosor de la fuente (normal en este caso)
+        "color": "black",  # Color del texto del enlace seleccionado
+    },
 }
-
+# Estructura del menú
 menu = {
-    'title': 'Menu principal',
+    'title': 'Menu principal',  # Título del menú principal
     'items': { 
-        'Inicio' : {
-            'action': None, 'item_icon': 'house', 'submenu': {
-                'title': None,
-                'items': { 
-                    'Gráfico 1' : {'action': do_chart1, 'item_icon': 'pie-chart-fill', 'submenu': None},
-                    'Gráfico 2' : {'action': do_chart2, 'item_icon': 'bar-chart-fill', 'submenu': None},
-                    'Gráfico 3' : {'action': do_chart3, 'item_icon': 'bar-chart-line', 'submenu': None},
-                    'Gráfico 4' : {'action': do_chart4, 'item_icon': 'bar-chart-line-fill', 'submenu': None},
-                    'Gráfico 5' : {'action': do_chart5, 'item_icon': 'bar-chart-steps', 'submenu': None},
+        'Inicio' : {  # Primer elemento del menú principal
+            'action': None,  # Acción a realizar al seleccionar este elemento (None indica ninguna acción)
+            'item_icon': 'house',  # Ícono asociado al elemento ('house' en este caso)
+            'submenu': {  # Submenú asociado al elemento 'Inicio'
+                'title': None,  # Título del submenú (None indica sin título)
+                'items': {  # Elementos del submenú
+                    'Gráfico 1' : {'action': do_chart1, 'item_icon': 'pie-chart-fill', 'submenu': None},  # Elemento 1 del submenú
+                    'Gráfico 2' : {'action': do_chart2, 'item_icon': 'bar-chart-fill', 'submenu': None},  # Elemento 2 del submenú
+                    'Gráfico 3' : {'action': do_chart3, 'item_icon': 'bar-chart-line', 'submenu': None},  # Elemento 3 del submenú
+                    'Gráfico 4' : {'action': do_chart4, 'item_icon': 'bar-chart-line-fill', 'submenu': None},  # Elemento 4 del submenú
+                    'Gráfico 5' : {'action': do_chart5, 'item_icon': 'bar-chart-steps', 'submenu': None},  # Elemento 5 del submenú
                 },
-                'menu_icon': None,
-                'default_index': 0,
-                'with_view_panel': 'main',
-                'orientation': 'horizontal',
-                'styles': styles
+                'menu_icon': None,  # Ícono asociado al submenú (None indica sin ícono)
+                'default_index': 0,  # Índice predeterminado al cargar el submenú
+                'with_view_panel': 'main',  # Indica dónde mostrar el contenido del submenú (en el área principal)
+                'orientation': 'horizontal',  # Orientación del submenú (horizontal en este caso)
+                'styles': styles  # Estilos del submenú
             }
         },
-        'Acerca' : {
-            'action': do_acerca, 'item_icon': 'people',
-             'submenu': {
-                'title': None,  
-                'items': { 
-                    'Definición' : {'action': None, 'item_icon': '-', 'submenu': None},
+        'Acerca' : {  # Segundo elemento del menú principal
+            'action': do_acerca,  # Acción a realizar al seleccionar este elemento (do_acerca en este caso)
+            'item_icon': 'info-square',  # Ícono asociado al elemento ('info-square' en este caso)
+             'submenu': {  # Submenú asociado al elemento 'Acerca'
+                'title': None,  # Título del submenú (None indica sin título)
+                'items': {  # Elementos del submenú
+                    'Definición' : {'action': None, 'item_icon': '-', 'submenu': None},  # Elemento 1 del submenú
                 },
-                'menu_icon': None,
-                'default_index': 0,
-                'with_view_panel': 'main',
-                'orientation': 'horizontal',
-                'styles': styles
+                'menu_icon': None,  # Ícono asociado al submenú (None indica sin ícono)
+                'default_index': 0,  # Índice predeterminado al cargar el submenú
+                'with_view_panel': 'main',  # Indica dónde mostrar el contenido del submenú (en el área principal)
+                'orientation': 'horizontal',  # Orientación del submenú (horizontal en este caso)
+                'styles': styles  # Estilos del submenú
             }
         },
-        'Contacto' : {
-            'action': None, 'item_icon': 'phone', 'submenu': {
-                'title': None,
-                'items': { 
-                    'Contactenos' : {'action': do_contact, 'item_icon': 'telephone-inbound-fill', 'submenu': None}
+        'Nosotros' : {  # Tercer elemento del menú principal
+            'action': None,  # Acción a realizar al seleccionar este elemento (None indica ninguna acción)
+            'item_icon': 'people',  # Ícono asociado al elemento ('people' en este caso)
+            'submenu': {  # Submenú asociado al elemento 'Nosotros'
+                'title': None,  # Título del submenú (None indica sin título)
+                'items': {  # Elementos del submenú
+                    'Nosotros' : {'action': do_nosotros, 'item_icon': '-', 'submenu': None}  # Elemento 1 del submenú
                 },
-                'menu_icon': None,
-                'default_index': 0,
-                'with_view_panel': 'main',
-                'orientation': 'horizontal',
-                'styles': styles
+                'menu_icon': None,  # Ícono asociado al submenú (None indica sin ícono)
+                'default_index': 0,  # Índice predeterminado al cargar el submenú
+                'with_view_panel': 'main',  # Indica dónde mostrar el contenido del submenú (en el área principal)
+                'orientation': 'horizontal',  # Orientación del submenú (horizontal en este caso)
+                'styles': styles  # Estilos del submenú
             }
         },
     },
-    'menu_icon': 'clipboard2-check-fill',
-    'default_index': 0,
-    'with_view_panel': 'sidebar',
-    'orientation': 'vertical',
-    'styles': styles
+    'menu_icon': 'clipboard2-check-fill',  # Ícono asociado al menú principal
+    'default_index': 0,  # Índice predeterminado al cargar el menú principal
+    'with_view_panel': 'sidebar',  # Indica dónde mostrar el contenido del menú principal (en la barra lateral)
+    'orientation': 'vertical',  # Orientación del menú principal (vertical en este caso)
+    'styles': styles  # Estilos del menú principal
 }
-
+# Definición de una función para mostrar un menú interactivo
 def show_menu(menu):
+    # Función interna para obtener las opciones del menú
     def _get_options(menu):
         options = list(menu['items'].keys())
         return options
+    # Función interna para obtener los iconos asociados a las opciones del menú
     def _get_icons(menu):
         icons = [v['item_icon'] for _k, v in menu['items'].items()]
         return icons
+    # Configuración de parámetros para la función de menú
     kwargs = {
-        'menu_title': menu['title'] ,
+        'menu_title': menu['title'],
         'options': _get_options(menu),
         'icons': _get_icons(menu),
         'menu_icon': menu['menu_icon'],
@@ -374,50 +376,51 @@ def show_menu(menu):
         'orientation': menu['orientation'],
         'styles': menu['styles']
     }
-
+    # Obtener el tipo de panel de vista (sidebar o main)
     with_view_panel = menu['with_view_panel']
+    # Mostrar el menú en el panel correspondiente
     if with_view_panel == 'sidebar':
         with st.sidebar:
             menu_selection = option_menu(**kwargs)
     elif with_view_panel == 'main':
         menu_selection = option_menu(**kwargs)
     else:
+        # Lanzar una excepción si el tipo de panel de vista no es reconocido
         raise ValueError(f"Unknown view panel value: {with_view_panel}. Must be 'sidebar' or 'main'.")
-
-    selected_submenu = menu['items'][menu_selection]['submenu']
+    # Lógica para manejar la selección del menú "Inicio"
     if menu_selection == 'Inicio':
-        if selected_submenu:
-            # submenu_items = selected_submenu['items']
+        if menu['items'][menu_selection]['submenu']:
             col1, col2 = st.columns(2)
             selected_year = col1.slider("Seleccione año:", min(df["PERIODO"].unique()), max(df["PERIODO"].unique()))
             st.session_state['anio_seleccionado'] = selected_year
-            # Filtrar el DataFrame basado en la selección del usuario por "PERIODO"
             filtered_year = df[df["PERIODO"] == selected_year]
-            # Agregar un radio button para filtrar por la columna "REG_NAT" en la barra lateral
             reg_nat_values = filtered_year["REG_NAT"].unique()
-            reg_nat_values = reg_nat_values[~pd.isna(reg_nat_values)]  # Exclude NaN values
-            # Use st.sidebar to place elements in the sidebar
+            reg_nat_values = reg_nat_values[~pd.isna(reg_nat_values)]  # Excluir valores NaN
             selected_reg_nat = col2.radio("Seleccione región natural:", reg_nat_values, horizontal=True)
-            # Filtrar el DataFrame basado en la selección del usuario (excluyendo NaN)
             st.session_state['df_guardado'] = filtered_year[filtered_year["REG_NAT"] == selected_reg_nat]
             st.toast('Seleccionaste año: '+str(selected_year)+' 📅', icon='❤')
-            st.toast('Seleccionaste region: '+selected_reg_nat+' ⛰️', icon='😍')
-
+            st.toast('Seleccionaste región: '+selected_reg_nat+' ⛰️', icon='😍')
+    # Lógica para mostrar submenú si está presente
     if menu['items'][menu_selection]['submenu']:
         show_menu(menu['items'][menu_selection]['submenu'])
+    # Lógica para ejecutar la acción asociada si está presente
     if menu['items'][menu_selection]['action']:
         menu['items'][menu_selection]['action']()
-# Create two columns
-# st.divider()  # 👈 Draws a horizontal rule
-# Update the menu options
+# Mostrar una imagen en la barra lateral usando Streamlit
 st.sidebar.image('https://www.precayetanovirtual.pe/moodle/pluginfile.php/1/theme_mb2nl/loadinglogo/1692369360/logo-cayetano.png', use_column_width=True)
+# Llamar a la función para mostrar el menú interactivo
 show_menu(menu)
-col1, col2, col3 = st.sidebar.columns([1,8,1])
+# Crear tres columnas en la barra lateral (1:8:1 ratio)
+col1, col2, col3 = st.sidebar.columns([1, 8, 1])
+# Espacio en blanco en la primera y tercera columna para centrar la imagen
 with col1:
     st.write("")
+# Mostrar una imagen en la segunda columna, probablemente un avatar o logotipo
 with col2:
-    st.image('heroguy.png',  use_column_width=True)
+    st.image('heroguy.png', use_column_width=True)
+# Espacio en blanco en la tercera columna para centrar la imagen
 with col3:
     st.write("")
+# Mostrar un texto en la barra lateral después de las columnas y agregar efecto de nieve
 st.sidebar.text("Ing. ambiental - UPCH")
 st.snow()
