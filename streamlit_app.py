@@ -8,7 +8,21 @@ import plotly.graph_objects as go
 # https://github.com/victoryhb/streamlit-option-menu
 from streamlit_option_menu import option_menu
 st.set_page_config(page_title='Dashboard residuos domiciliarios',page_icon="🌎",initial_sidebar_state="expanded", layout='wide')
-st.markdown("**Composición anual de residuos domiciliarios (2019-2022)**")
+text_style = """
+    <style>
+        .title_text {
+            font-size: 24px; font-family: "Times New Roman", Georgia, serif;
+            font-weight: bold;
+        }
+        .desc_text {
+            font-size: 24px; font-family: "Times New Roman", Georgia, serif;
+            text-align: justify;
+        }
+
+    </style>
+"""
+st.markdown(text_style, unsafe_allow_html=True)
+st.markdown("<h3 class='title_text'>Composición anual de residuos domiciliarios (2019-2022)<h3>" , unsafe_allow_html=True)
 # Cargar el archivo CSV en un DataFrame
 file_path = "D. Composición Anual de residuos domiciliarios_Distrital_2019_2022.csv"
 df = pd.read_csv(file_path, encoding="ISO-8859-1", delimiter=";", index_col=0, usecols=lambda x: 'Unnamed' not in x)
@@ -19,8 +33,7 @@ df["PERIODO"] = df["PERIODO"].astype(int)
 df = df[df["PERIODO"].notna()]
 def do_upload_tasks():
     st.markdown('### Upload task file')
-
-def do_view_tasks():
+def do_chart1():
     global df
     # Contar los valores de la columna "QRESIDUOS_DOM" por "PERIODO"
     count_by_periodo = df.groupby("PERIODO")["QRESIDUOS_DOM"].count().reset_index()
@@ -55,7 +68,7 @@ def do_view_tasks():
 
     # Customize legend and layout
     fig.update_layout(
-        title="Pie Chart de Residuos domiciliarios Ton/Año | 2019 - 2022",
+        title="Consumo de residuos domiciliarios por año Ton/Año | 2019 - 2022",
         legend=dict(
             orientation="h",  # horizontal legend
             yanchor="bottom",
@@ -66,9 +79,9 @@ def do_view_tasks():
         font=dict(family="Arial", size=12, color="black"),  # Adjust font
     )
     st.plotly_chart(fig, use_container=True)
-    st.info('This is a purely informational message', icon="🧐")
-
-def do_manage_tasks():
+    st.markdown("*Gráfica 1: El gráfico representa la proporción expresada en porcentajes de la cantidad de residuos sólidos domiciliarios por año*")
+    st.info('En la gráfica se logra observar la comparación de la cantidad de residuos sólidos domiciliarios que fueron registrados durante el periodo 2019 al 2022 y la proporción que representan respecto al 100% del total de los datos registrados, de los cuales se puede destacar que el año 2019 y 2020 tienen un porcentaje igual de distribución y lo mismo se logra observar para los años 2021 y 2022, pero es importante destacar que los 2 últimos años del periodo fueron los que mayor porcentaje de residuos sólidos domiciliarios registraron. ', icon="🧐")
+def do_chart2():
     # st.markdown('### Ticking tasks')
     sum_residuos_urbanos = df.groupby("DEPARTAMENTO")["QRESIDUOS_DOM"].sum().reset_index()
     # Renombrar la columna para reflejar que son "residuos domiciliarios urbanos"
@@ -77,7 +90,7 @@ def do_manage_tasks():
     # Crear el Bubble Chart con la suma de los residuos urbanos
     fig = px.scatter(sum_residuos_urbanos, x="DEPARTAMENTO", y="Residuos Domiciliarios Urbanos",
                     size="Residuos Domiciliarios Urbanos", color="DEPARTAMENTO",
-                    hover_name="DEPARTAMENTO", title="Bubble Chart de Residuos Domiciliarios Urbanos Ton/Año por Departamento",
+                    hover_name="DEPARTAMENTO", title="Residuos sólidos domiciliarios urbanos Ton/Año por Departamento",
                     labels={"Residuos Domiciliarios Urbanos": "Residuos Domiciliarios Urbanos", "DEPARTAMENTO": "Departamento"},
                     size_max=60,
                     # mode='markers',
@@ -95,15 +108,15 @@ def do_manage_tasks():
     )
     # Mostrar el gráfico
     st.plotly_chart(fig)
-    st.warning('This is a warning', icon="⚠️")
-
+    st.markdown("*Gráfica 2: El gráfico representa los residuos domiciliarios urbanos por departamento expresada en millones de toneladas*")
+    st.warning('En el gráfico presentado podemos observar que  en  la capital del Perú Lima, es una de las ciudades más urbanizadas , de igual forma la más poblada del país y, por lo tanto, genera una gran cantidad de residuos sólidos domiciliarios. Según un informe del Ministerio del Ambiente, los habitantes de la ciudad de Lima generan un promedio de 10 M (millones)  de residuos sólidos del período tomado del 2019-2022 . Además, la cantidad de residuos sólidos generados por persona viene incrementándose debido a los patrones de consumo.', icon="⚠️")
 def do_chart3():
     saved_df = st.session_state['df_guardado']  
     selected_year = st.session_state['anio_seleccionado']  
     count_by_departamento = saved_df.groupby("DEPARTAMENTO")["QRESIDUOS_DOM"].count().reset_index()
     # Mostrar los resultados en una gráfica de barras utilizando plotly.express con colores diferentes
     fig = px.bar(count_by_departamento, x="DEPARTAMENTO", y="QRESIDUOS_DOM", color="DEPARTAMENTO",
-             title=f"Residuos domiciliarios por departamento según región natural Ton/Año ({selected_year})",
+             title=f"Residuos sólidos domiciliarios Ton/Año por departamento por año y región ({selected_year})",
              labels={"QRESIDUOS_DOM": "Residuos domiciliarios"})
     # Agregar el conteo dentro de cada barra para cada departamento
     for i, row in count_by_departamento.iterrows():
@@ -125,8 +138,8 @@ def do_chart3():
         showlegend=False  # Ocultar la leyenda, ya que el color se usa para departamentos
     )
     st.plotly_chart(fig)
-    st.error('This is an error', icon="🚨")
-
+    st.markdown("*Gráfica 3: La gráfica muestra la diferencia de consumos de residuos sólidos domiciliarios por departamento con su respectiva región.*")
+    st.info('Tener en cuenta que el territorio  peruano está dividido en 3 regiones naturales: costa, sierra y selva. Esta división se basa en las características topográficas y climáticas de cada región,es por ello, que en la gráfica se puede apreciar que el mismo departamento se encuentra en diferentes regiones. Por ejemplo, el departamento de Piura que se encuentra ubicado en la zona norte del país, está distribuido geográficamente en la costa y sierra, como consecuencia se pueden apreciar playas, ríos y montañas dentro de un mismo territorio.', icon="🔎")
 def do_chart4():
     # st.markdown('### chart4')
     # Access the DataFrame from session state
@@ -160,7 +173,7 @@ def do_chart4():
                                                                     var_name="Categoría", value_name="Suma de Residuos")
     # Crear el gráfico de barras vertical
     fig = px.bar(sum_by_department_melted, x="DEPARTAMENTO", y="Suma de Residuos", color="Categoría",
-                title="Residuos en Ton/Año por Categoría y Departamento",
+                title="Residuos en Ton/Año (Toneladas por años) por clasificación y departamento",
                 labels={"Suma de Residuos": "Suma de Residuos", "DEPARTAMENTO": "Departamento"},
                 color_discrete_map={"ORGANICOS": "lime", "INORGANICOS": "black", "NO_APROVECHABLES": "purple", "PELIGROSOS": "red"},
                 )
@@ -191,7 +204,17 @@ def do_chart4():
     )
     # Mostrar el gráfico
     st.plotly_chart(fig)
-    st.error('This is an error', icon="🚨")
+    st.markdown("*La gráfica muestra la cantidad de consumo de residuos sólidos con su respectiva clasificación.*")
+    st.info('''Según el Ministerio del Ambiente los residuos sólidos orgánicos se dividen en 34 tipos, en los cuales se pueden clasificar en cuatro grandes grupos: orgánicos, inorgánicos, no aprovechables y peligrosos. Dicha gráfica tiene la facilidad de identificar qué categoría prevalece más, es decir, que conjunto de residuos es más consumido en cada departamento.
+
+**Orgánicos:** Son aquellos desechos biodegradables de origen vegetal o animal que pueden descomponerse en la naturaleza sin demasiada dificultad y transformarse en otro tipo de materia orgánica , 
+
+**Inorgánicos:** Son aquellos desechos no biodegradables o degradables a muy largo plazo que se derivan de procesos antropogénicos (generados por el ser humano).
+
+**No aprovechables:** Son aquellos desechos que no pueden ser reutilizados, reciclados o transformados en otros productos.
+
+**Peligrosos:** Son aquellos residuos que, debido a sus propiedades corrosivas, explosivas, tóxicas, inflamables o radiactivas, pueden causar daños o efectos indeseados a la salud o al ambiente.
+''', icon="🔎")
 def do_chart5():
     # st.markdown('### chart5')
     # Multiplicar las columnas para obtener "RESIDUOS URBANA" y "RESIDUOS RURAL"
@@ -206,7 +229,7 @@ def do_chart5():
                                                 var_name="Tipo de Residuos", value_name="Cantidad")
     # Crear el gráfico de barras multivariable con texto personalizado
     fig = px.bar(count_residuos_melted, x="DEPARTAMENTO", y="Cantidad", color="Tipo de Residuos",
-                title="Residuos Urbanos y Rurales por Departamento en Kg/Hab./Día",
+                title="Residuos sólidos Urbanos y rurales por departamento en Kg/Hab/día: Kilogramo por habitante día",
                 labels={"Cantidad": "Cantidad de Residuos", "DEPARTAMENTO": "Departamento"},
                 color_discrete_map={"RESIDUOS URBANA": "darkslategray", "RESIDUOS RURAL": "lime"},
                 text="Cantidad",
@@ -222,11 +245,10 @@ def do_chart5():
 
     # Mostrar el gráfico
     st.plotly_chart(fig)
+    st.markdown("*Gráfica 5:  El gráfico representa  la cantidad de consumo de residuos en la zona urbana y rural en su respectivo departamento.*")
     st.success(
     """
-    **Analisis**
-
-    Stay positive, work hard, and make it happen.
+    En la gráfica es posible que la mayoría de los residuos sean de la zona urbana debido a las diferencias en densidad de población y estilo de vida.ya que las zonas urbanas tienen mayor densidad de población, lo que significa que más personas generan residuos sólidos Por ejemplo, en las zonas urbanas la gente tiende a consumir más productos desechables envasados, lo que aumenta la cantidad de residuos sólidos.Por otro lado, la gente de las zonas rurales tiende a consumir más productos frescos y a granel, lo que reduce la cantidad de residuos sólidos.
     """, icon='🔎')
 
 def do_credentials():
@@ -236,48 +258,44 @@ def do_logs():
 def do_acerca():
     st.image('basurero.jpg', caption="Basura en la playa", use_column_width=True)
     st.link_button("Ir a código del proyecto", "https://github.com/summermp/streamlit", type='primary')
+    
     st.markdown("""
-La gestión de residuos sólidos domiciliarios es un desafío importante en el Perú, ya que su inadecuada disposición final genera problemas ambientales y de salud pública. La composición de los residuos sólidos domiciliarios es un factor clave para el diseño e implementación de estrategias efectivas de gestión de residuos.
-
-En Perú, la generación de residuos sólidos domiciliarios ha aumentado significativamente en los últimos años, alcanzando aproximadamente 22,000 toneladas por día en 2022. La composición de estos residuos varía según la región, el nivel socioeconómico y otros factores. Sin embargo, en general, los residuos orgánicos constituyen la mayor parte de los residuos sólidos domiciliarios en Perú, seguidos de los residuos inorgánicos reciclables y los residuos inorgánicos no reciclables.
-
-**Composición de los residuos sólidos domiciliarios en Perú (2019-2022)**
-
-| Componente | Porcentaje (%) |
-|---|---|
-| Residuos orgánicos | 45-55% |
-| Residuos inorgánicos reciclables | 25-35% |
-| Residuos inorgánicos no reciclables | 15-25% |
-
-**Impacto ambiental de la inadecuada gestión de residuos sólidos domiciliarios**
-
-La inadecuada disposición final de los residuos sólidos domiciliarios genera una serie de problemas ambientales, incluyendo:
-
-* Contaminación del suelo y el agua
-* Emisión de gases de efecto invernadero
-* Propagación de enfermedades
-* Afectación de la biodiversidad
-
-**Estrategias para la gestión efectiva de residuos sólidos domiciliarios**
-
-Para hacer frente al desafío de la gestión de residuos sólidos domiciliarios, es necesario implementar una serie de estrategias efectivas, incluyendo:
-
-* Reducción de la generación de residuos
-* Recolección y transporte eficientes
-* Recuperación y reciclaje de residuos
-* Disposición final adecuada de los residuos no aprovechables
-
-La gestión efectiva de residuos sólidos domiciliarios es esencial para proteger el medio ambiente y la salud pública.
-
-**Conclusión**
-
-La composición de los residuos sólidos domiciliarios en Perú es un factor importante para el diseño e implementación de estrategias efectivas de gestión de residuos. La reducción de la generación de residuos, la recuperación y reciclaje de residuos, y la disposición final adecuada de los residuos no aprovechables son estrategias clave para hacer frente al desafío de la gestión de residuos sólidos domiciliarios.
-""")
+<p class='desc_text'> La base de datos de composición de residuos sólidos domiciliarios corresponde a la información sobre la distribución de los residuos sólidos del ámbito domiciliario generados por tipo (medido en tonelada). Dicha información, fue obtenida desde los años 2019 hasta el 2022, con respecto a todos los departamentos de nuestro país.</br></br>
+La información que se toma de insumo para la estimación de esta estadística es obtenida a partir de dos fuentes de información: </br></br>
+Sistema de Información para la Gestión de los Residuos Sólidos – SIGERSOL el cual es administrado por el Ministerio del Ambiente (MINAM).</br></br>
+Los Estudios de caracterización de residuos sólidos municipales, que se estandarizaron desde el año 2019 en adelante, aprobada mediante Resolución Ministerial N° 457-2018-MINAM.</p>
+<h4 class='title_text'>¿Qué buscamos?</h4>
+<p class='desc_text'>Buscamos brindar información sobre la distribución de los residuos sólidos en el ámbito domiciliario en todos los departamentos del Perú; facilitando su uso mediante gráficas y tablas para un mejor entendimiento.</p>
+<h4 class='title_text'>¿Qué son los residuos sólidos domiciliarios?</h4>
+<p class='desc_text'>Residuos sólidos domiciliarios son aquellos provenientes del consumo o uso de un bien o servicio, comprenden específicamente como fuente de generación a las viviendas.</p>
+<h4 class='title_text'>¿Cómo influyen los residuos sólidos en los seres vivos?</h4>
+<p class='desc_text'>De acuerdo a su clasificación y aprovechamiento estos residuos domiciliarios pueden influir tanto positiva como negativamente, por ejemplo, el uso irresponsable y excesivo de plástico, pilas y/o baterías podría ser muy perjudicial para los seres vivos y al ambiente, ya que estos son residuos que podrían <b>tomarse entre 100 a 1000 años en descomponerse</b>, generando así un rastro tóxico a largo plazo en nuestro ecosistema. Por otra parte, el aprovechamiento responsable y creativo de los residuos domiciliarios, tales como la materia orgánica, el papel y el cartón permiten fomentar el reciclaje y crear nuevos productos que sean en beneficio para los seres vivos y el ambiente, por ejemplo, la descomposición de la materia orgánica podría ser fuente de compostaje para las plantas.</p>
+""",  unsafe_allow_html=True)
 def do_contact():
-    st.image('agradecimiento.png', caption="Agradecimiento al equipo", use_column_width=True)
-    st.markdown('### Email: streamlit@gmail.com')
-    st.markdown('### Cel: 962 925 573')
-
+    st.markdown("<h4 class='title_text'>¿Quiénes somos?</h4>", unsafe_allow_html=True)
+    st.markdown("<p class='desc_text'>Somos estudiantes del cuarto semestre de la carrera de ingeniería ambiental de la Universidad Peruana Cayetano Heredia (UPCH). Nos apasiona el procesamiento y visualización de datos para mejorar y comprender la problemática ambiental y brindar información sobre los residuos sólidos generados en el Perú.</p>", unsafe_allow_html=True)
+    # Crear dos columnas
+    col1, col2 = st.columns(2)
+    # Puedes agregar imágenes a cada columna también
+    imagen1 = "greisy.png"  # Reemplaza con la URL de tu primera imagen
+    imagen2 = "lizzeth.jpg"  # Reemplaza con la URL de tu segunda imagen
+    col1.image(imagen1, use_column_width=True)
+    col1.markdown("<p style='text-align: center;'><strong>Greisy Jhoana Delgado Gaona</strong></p>", unsafe_allow_html=True)
+    col2.image(imagen2, use_column_width=True)
+    col2.markdown("<p style='text-align: center;'><strong>Lizzeth Rossmery Quispe Mamani</strong></p>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    # Puedes agregar imágenes a cada columna también
+    imagen1 = "amparo.jpg"  # Reemplaza con la URL de tu primera imagen
+    imagen2 = "anjhy.jpg"  # Reemplaza con la URL de tu segunda imagen
+    col1.image(imagen1, use_column_width=True)
+    col1.markdown("<p style='text-align: center;'><strong>Amparo Marleny Vidaurre Juarez</strong></p>", unsafe_allow_html=True)
+    col2.image(imagen2, use_column_width=True)
+    col2.markdown("<p style='text-align: center;'><strong>Anjhy Lucero Zamora Sulca</strong></p>", unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    imagen1 = "liz.jpg"  # Reemplaza con la URL de tu primera imagen
+    col1.image(imagen1, use_column_width=True)
+    col1.markdown("<p style='text-align: center;'><strong>Liz Villarreal Zapata</strong></p>", unsafe_allow_html=True)
+    # st.image('agradecimiento.png', caption="Agradecimiento al equipo", use_column_width=True)
 styles = {
     "container": {"margin": "0px !important", "padding": "0!important", "align-items": "stretch", "background-color": "#fafafa"},
     "icon": {"color": "black", "font-size": "20px"}, 
@@ -292,8 +310,8 @@ menu = {
             'action': None, 'item_icon': 'house', 'submenu': {
                 'title': None,
                 'items': { 
-                    'Gráfico 1' : {'action': do_view_tasks, 'item_icon': 'pie-chart-fill', 'submenu': None},
-                    'Gráfico 2' : {'action': do_manage_tasks, 'item_icon': 'bar-chart-fill', 'submenu': None},
+                    'Gráfico 1' : {'action': do_chart1, 'item_icon': 'pie-chart-fill', 'submenu': None},
+                    'Gráfico 2' : {'action': do_chart2, 'item_icon': 'bar-chart-fill', 'submenu': None},
                     'Gráfico 3' : {'action': do_chart3, 'item_icon': 'bar-chart-line', 'submenu': None},
                     'Gráfico 4' : {'action': do_chart4, 'item_icon': 'bar-chart-line-fill', 'submenu': None},
                     'Gráfico 5' : {'action': do_chart5, 'item_icon': 'bar-chart-steps', 'submenu': None},
@@ -310,7 +328,7 @@ menu = {
              'submenu': {
                 'title': None,  
                 'items': { 
-                    'Descripción' : {'action': None, 'item_icon': '-', 'submenu': None},
+                    'Definición' : {'action': None, 'item_icon': '-', 'submenu': None},
                 },
                 'menu_icon': None,
                 'default_index': 0,
