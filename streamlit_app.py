@@ -248,7 +248,7 @@ def do_chart5():
     st.markdown("*Gráfica 5:  El gráfico representa  la cantidad de consumo de residuos en la zona urbana y rural en su respectivo departamento.*")
     st.success(
     """
-    En la gráfica es posible que la mayoría de los residuos sean de la zona urbana debido a las diferencias en densidad de población y estilo de vida.ya que las zonas urbanas tienen mayor densidad de población, lo que significa que más personas generan residuos sólidos Por ejemplo, en las zonas urbanas la gente tiende a consumir más productos desechables envasados, lo que aumenta la cantidad de residuos sólidos.Por otro lado, la gente de las zonas rurales tiende a consumir más productos frescos y a granel, lo que reduce la cantidad de residuos sólidos.
+    En la gráfica se logra observar que la mayoría de los residuos sólidos que provienen de las zonas urbanas es en mayor cantidad con respecto a los residuos de las zonas rurales, factores como la densidad de población y estilo de vida son los responsables de dichos resultados. Por ejemplo, en las zonas urbanas las personas tienden a consumir más productos desechables envasados, generando así que la cantidad de residuos sólidos aumente, a diferencia de la población en las zonas rurales quienes tiende a consumir más productos frescos y a granel, permitiendo que la cantidad de residuos sólidos se reduzca.
     """, icon='🔎')
 
 def do_credentials():
