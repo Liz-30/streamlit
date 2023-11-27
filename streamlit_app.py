@@ -248,7 +248,7 @@ Los Estudios de caracterización de residuos sólidos municipales, que se estand
 """,  unsafe_allow_html=True)
 # Función para mostrar información de nosotros
 def do_nosotros():
-    st.markdown("<h4 class='title_text'>¿Quiénes somos?</h4>", unsafe_allow_html=True)
+    # st.markdown("<h4 class='title_text'>¿Quiénes somos?</h4>", unsafe_allow_html=True)
     st.markdown("<p class='desc_text'>Somos estudiantes del cuarto semestre de la carrera de ingeniería ambiental de la Universidad Peruana Cayetano Heredia (UPCH). Nos apasiona el procesamiento y visualización de datos para mejorar y comprender la problemática ambiental y brindar información sobre los residuos sólidos generados en el Perú.</p>", unsafe_allow_html=True)
     # Crear dos columnas
     col1, col2 = st.columns(2)
