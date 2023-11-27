@@ -340,7 +340,7 @@ menu = {
             'submenu': {  # Submenú asociado al elemento 'Nosotros'
                 'title': None,  # Título del submenú (None indica sin título)
                 'items': {  # Elementos del submenú
-                    'Nosotros' : {'action': do_nosotros, 'item_icon': '-', 'submenu': None}  # Elemento 1 del submenú
+                    '¿Quiénes somos?' : {'action': do_nosotros, 'item_icon': '-', 'submenu': None}  # Elemento 1 del submenú
                 },
                 'menu_icon': None,  # Ícono asociado al submenú (None indica sin ícono)
                 'default_index': 0,  # Índice predeterminado al cargar el submenú
