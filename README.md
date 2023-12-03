@@ -1,4 +1,4 @@
-# Composición anual de residuos domiciliarios (2019-2022)
+# Composición anual de residuos sólidos domiciliarios de los departamentos del Perú (2019-2022)
 
 
 Descripción	La base de datos de composición de residuos sólidos domiciliarios corresponde a la información sobre la distribución de los residuos sólidos del ámbito domiciliario generados por tipo. La unidad de medida se muestra en toneladas.
@@ -23,9 +23,9 @@ https://residuos.streamlit.app
 **Integrantes:**
 
 
-1. LIZZETH QUISPE MAMANI
-2. LIZ VILLAREAL ZAPATA
-3. ...
-4. ...
-5. ...
+1. Greisy Jhoana Delgado Gaona
+2. Lizzeth Rossmery Quispe Mamani
+3. Amparo Marleny Vidaurre Juarez
+4. Liz Villarreal Zapata
+5. Anjhy Lucero Zamora Sulca
 
